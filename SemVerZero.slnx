@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="SemVerZero.Tests/SemVerZero.Tests.csproj" Id="b27ad056-e9ef-4619-b491-a2c40e076954" />
+  <Project Path="SemVerZero/SemVerZero.csproj" />
+</Solution>
