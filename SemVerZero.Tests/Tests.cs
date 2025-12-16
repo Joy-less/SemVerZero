@@ -1,8 +1,31 @@
-﻿using System.Text;
+using System.Text;
 
 namespace SemVerZero.Tests;
 
 public class Tests {
+    [Fact]
+    public void ReadmeTest() {
+        SemanticVersion Version = SemanticVersion.Parse("1.0.0-rc.1");
+
+        long Major = Version.Major;
+        long Minor = Version.Minor;
+        long Patch = Version.Patch;
+        string? Prerelease = Version.Prerelease;
+        string? Build = Version.Build;
+
+        string String = Version.ToString();
+        string MinimalString = Version.ToMinimalString();
+
+        Major.ShouldBe(1);
+        Minor.ShouldBe(0);
+        Patch.ShouldBe(0);
+        Prerelease.ShouldBe("rc.1");
+        Build.ShouldBe(null);
+
+        String.ShouldBe("1.0.0-rc.1");
+        MinimalString.ShouldBe("1-rc.1");
+    }
+
     [Fact]
     public void ConstructorTest() {
         SemanticVersion Version1 = new(1, 2, 3, "a", "b");
