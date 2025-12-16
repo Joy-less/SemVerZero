@@ -11,14 +11,18 @@ This library provides a performant `SemanticVersion` type in full compliance wit
 ```cs
 SemanticVersion Version = SemanticVersion.Parse("1.0.0-rc.1");
 
-long Major = Version.Major;
-long Minor = Version.Minor;
-long Patch = Version.Patch;
-string? Prerelease = Version.Prerelease;
-string? Build = Version.Build;
+long Major = Version.Major; // 1
+long Minor = Version.Minor; // 0
+long Patch = Version.Patch; // 0
+string? Prerelease = Version.Prerelease; // rc.1
+string? Build = Version.Build; // null
 
-string String = Version.ToString();
-string MinimalString = Version.ToString(SemanticVersionFormat.Major);
+string String = Version.ToString(); // 1.0.0-rc.1
+string MinimalString = Version.ToString(SemanticVersionFormat.Major); // 1-rc.1
+
+SemanticVersion ZeroVer = new(0, 10, 4);
+
+string ZeroVerString = ZeroVer.ToString(); // 0.10.4
 ```
 
 ## Benchmarks
