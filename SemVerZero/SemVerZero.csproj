@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <VersionPrefix>1.0</VersionPrefix>
 
@@ -7,10 +7,11 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
+        <!-- IDE0059: Unnecessary assignment of a value -->
         <!-- IDE0290: Use primary constructor -->
-		<!-- CA1510: Use ArgumentNullException throw helper -->
-		<!-- CA1512: Use ArgumentOutOfRangeException throw helper -->
-        <NoWarn>IDE0290;CA1510;CA1512</NoWarn>
+        <!-- CA1510: Use ArgumentNullException throw helper -->
+        <!-- CA1512: Use ArgumentOutOfRangeException throw helper -->
+        <NoWarn>IDE0059;IDE0290;CA1510;CA1512</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net7.0'))">
@@ -18,23 +19,23 @@
         <IsAotCompatible>True</IsAotCompatible>
     </PropertyGroup>
 
-	<PropertyGroup>
-		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Description>Zero-allocation result pattern for C#.</Description>
-		<Title>ResultZero</Title>
-		<Authors>Joyless</Authors>
-		<PackageProjectUrl>https://github.com/Joy-less/ResultZero</PackageProjectUrl>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<RepositoryUrl>https://github.com/Joy-less/ResultZero</RepositoryUrl>
-		<PackageTags>results; value results; exceptions</PackageTags>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-	</PropertyGroup>
+    <PropertyGroup>
+        <GenerateDocumentationFile>True</GenerateDocumentationFile>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <Description>Zero-allocation result pattern for C#.</Description>
+        <Title>ResultZero</Title>
+        <Authors>Joyless</Authors>
+        <PackageProjectUrl>https://github.com/Joy-less/ResultZero</PackageProjectUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/Joy-less/ResultZero</RepositoryUrl>
+        <PackageTags>results; value results; exceptions</PackageTags>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<None Include="../README.md">
-			<Pack>True</Pack>
-			<PackagePath>/</PackagePath>
-		</None>
-	</ItemGroup>
+    <ItemGroup>
+        <None Include="../README.md">
+            <Pack>True</Pack>
+            <PackagePath>/</PackagePath>
+        </None>
+    </ItemGroup>
 </Project>

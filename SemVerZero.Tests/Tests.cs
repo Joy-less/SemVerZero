@@ -27,10 +27,10 @@ public class Tests {
         Should.Throw<ArgumentOutOfRangeException>(() => {
             SemanticVersion Version1 = new(-1, 0, 0);
         });
-        Should.Throw<ArgumentException>(() => {
+        Should.Throw<FormatException>(() => {
             SemanticVersion Version2 = new(1, 0, 0, "");
         });
-        Should.Throw<ArgumentException>(() => {
+        Should.Throw<FormatException>(() => {
             SemanticVersion Version3 = new(1, 0, 0, Build: "  ");
         });
     }
@@ -55,5 +55,42 @@ public class Tests {
         Span<byte> Destination2 = stackalloc byte[32];
         Version2.TryFormat(Destination2, out int CharsWritten2).ShouldBeTrue();
         Encoding.UTF8.GetString(Destination2[..CharsWritten2]).ShouldBe("1.24.3");
+    }
+
+    [Fact]
+    public void OrderTest() {
+        SemanticVersion[] Versions = [
+            SemanticVersion.Parse("1.9.0"),
+            SemanticVersion.Parse("1.10.0"),
+            SemanticVersion.Parse("1.11.0"),
+        ];
+
+        for (int Index = 1; Index < Versions.Length; Index++) {
+            SemanticVersion Left = Versions[Index - 1];
+            SemanticVersion Right = Versions[Index];
+
+            (Left < Right).ShouldBeTrue($"{Left} >= {Right}");
+        }
+    }
+
+    [Fact]
+    public void TagOrderTest() {
+        SemanticVersion[] Versions = [
+            SemanticVersion.Parse("1.0.0-alpha"),
+            SemanticVersion.Parse("1.0.0-alpha.1"),
+            SemanticVersion.Parse("1.0.0-alpha.beta"),
+            SemanticVersion.Parse("1.0.0-beta"),
+            SemanticVersion.Parse("1.0.0-beta.2"),
+            SemanticVersion.Parse("1.0.0-beta.11"),
+            SemanticVersion.Parse("1.0.0-rc.1"),
+            SemanticVersion.Parse("1.0.0"),
+        ];
+
+        for (int Index = 1; Index < Versions.Length; Index++) {
+            SemanticVersion Left = Versions[Index - 1];
+            SemanticVersion Right = Versions[Index];
+
+            (Left < Right).ShouldBeTrue($"{Left} >= {Right}");
+        }
     }
 }

@@ -158,7 +158,7 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
     }
 
     public static SemanticVersion Parse(scoped ReadOnlySpan<char> Input) {
-        long Major;
+        long Major = 0;
         long Minor = 0;
         long Patch = 0;
         string? Prerelease = null;
@@ -189,16 +189,26 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
         }
         static ReadOnlySpan<char> ParsePrerelease(ReadOnlySpan<char> Input, ref int Index) {
             int StartIndex = Index;
+            bool Dot = false;
 
             for (; Index < Input.Length; Index++) {
                 char Char = Input[Index];
 
                 // Plus
                 if (Char is '+') {
+                    Dot = false;
                     break;
+                }
+                // Dot
+                else if (Char is '.') {
+                    if (Dot) {
+                        throw new FormatException("Empty pre-release identifier");
+                    }
+                    Dot = true;
                 }
                 // Alphanumeric character / Hyphen
                 else if ((Char is >= '0' and <= '9') || (Char is >= 'A' and <= 'Z') || (Char is >= 'a' and <= 'z') || Char is '-') {
+                    Dot = false;
                 }
                 // Invalid
                 else {
@@ -206,21 +216,38 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
                 }
             }
 
+            if (Dot) {
+                throw new FormatException("Empty pre-release identifier");
+            }
+
             return Input[StartIndex..Index];
         }
         static ReadOnlySpan<char> ParseBuild(ReadOnlySpan<char> Input, ref int Index) {
             int StartIndex = Index;
+            bool Dot = false;
 
             for (; Index < Input.Length; Index++) {
                 char Char = Input[Index];
 
+                // Dot
+                if (Char is '.') {
+                    if (Dot) {
+                        throw new FormatException("Empty build identifier");
+                    }
+                    Dot = true;
+                }
                 // Alphanumeric character / Hyphen
-                if ((Char is >= '0' and <= '9') || (Char is >= 'A' and <= 'Z') || (Char is >= 'a' and <= 'z') || Char is '-') {
+                else if ((Char is >= '0' and <= '9') || (Char is >= 'A' and <= 'Z') || (Char is >= 'a' and <= 'z') || Char is '-') {
+                    Dot = false;
                 }
                 // Invalid
                 else {
                     throw new FormatException("Invalid build character (expected [0-9A-Za-z-])");
                 }
+            }
+
+            if (Dot) {
+                throw new FormatException("Empty build identifier");
             }
 
             return Input[StartIndex..Index];
@@ -243,18 +270,20 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
 
         // Prerelease
         if (Index < Input.Length && Input[Index] == '-') {
+            Index++;
             Prerelease = ParsePrerelease(Input, ref Index).ToString();
         }
 
         // Build
         if (Index < Input.Length && Input[Index] == '+') {
+            Index++;
             Build = ParseBuild(Input, ref Index).ToString();
         }
 
         return new SemanticVersion(Major, Minor, Patch, Prerelease, Build);
     }
     public static bool TryParse(scoped ReadOnlySpan<char> Input, out SemanticVersion Result) {
-        long Major;
+        long Major = 0;
         long Minor = 0;
         long Patch = 0;
         string? Prerelease = null;
@@ -286,6 +315,7 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
         }
         static bool TryParsePrerelease(ReadOnlySpan<char> Input, ref int Index, out ReadOnlySpan<char> Result) {
             int StartIndex = Index;
+            bool Dot = false;
 
             for (; Index < Input.Length; Index++) {
                 char Char = Input[Index];
@@ -294,8 +324,16 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
                 if (Char is '+') {
                     break;
                 }
+                // Dot
+                else if (Char is '.') {
+                    if (Dot) {
+                        throw new FormatException("Empty pre-release identifier");
+                    }
+                    Dot = true;
+                }
                 // Alphanumeric character / Hyphen
                 else if ((Char is >= '0' and <= '9') || (Char is >= 'A' and <= 'Z') || (Char is >= 'a' and <= 'z') || Char is '-') {
+                    Dot = false;
                 }
                 // Invalid
                 else {
@@ -304,23 +342,40 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
                 }
             }
 
+            if (Dot) {
+                throw new FormatException("Empty pre-release identifier");
+            }
+
             Result = Input[StartIndex..Index];
             return true;
         }
         static bool TryParseBuild(ReadOnlySpan<char> Input, ref int Index, out ReadOnlySpan<char> Result) {
             int StartIndex = Index;
+            bool Dot = false;
 
             for (; Index < Input.Length; Index++) {
                 char Char = Input[Index];
 
+                // Dot
+                if (Char is '.') {
+                    if (Dot) {
+                        throw new FormatException("Empty build identifier");
+                    }
+                    Dot = true;
+                }
                 // Alphanumeric character / Hyphen
-                if ((Char is >= '0' and <= '9') || (Char is >= 'A' and <= 'Z') || (Char is >= 'a' and <= 'z') || Char is '-') {
+                else if ((Char is >= '0' and <= '9') || (Char is >= 'A' and <= 'Z') || (Char is >= 'a' and <= 'z') || Char is '-') {
+                    Dot = false;
                 }
                 // Invalid
                 else {
                     Result = default;
                     return false;
                 }
+            }
+
+            if (Dot) {
+                throw new FormatException("Empty build identifier");
             }
 
             Result = Input[StartIndex..Index];
@@ -353,6 +408,7 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
 
         // Prerelease
         if (Index < Input.Length && Input[Index] == '-') {
+            Index++;
             if (!TryParsePrerelease(Input, ref Index, out ReadOnlySpan<char> PrereleaseSpan)) {
                 Result = default;
                 return false;
@@ -362,6 +418,7 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
 
         // Build
         if (Index < Input.Length && Input[Index] == '+') {
+            Index++;
             if (!TryParseBuild(Input, ref Index, out ReadOnlySpan<char> BuildSpan)) {
                 Result = default;
                 return false;
@@ -382,7 +439,7 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
             // Dot
             if (Char is '.') {
                 if (IdentifierStartIndex == Index) {
-                    throw new ArgumentException("Empty tag identifier", nameof(Tag));
+                    throw new FormatException("Empty tag identifier");
                 }
 
                 IdentifierStartIndex = Index + 1;
@@ -392,12 +449,12 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
             }
             // Invalid
             else {
-                throw new ArgumentException("Invalid tag character (expected [0-9A-Za-z-])", nameof(Tag));
+                throw new FormatException("Invalid tag character (expected [0-9A-Za-z-])");
             }
         }
 
         if (IdentifierStartIndex == Tag.Length) {
-            throw new ArgumentException("Empty tag identifier", nameof(Tag));
+            throw new FormatException("Empty tag identifier");
         }
     }
     private static int CompareTags(scoped ReadOnlySpan<char> TagA, scoped ReadOnlySpan<char> TagB) {
@@ -414,16 +471,16 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
                 if (Char is '.') {
                     break;
                 }
-                // Alphanumeric character / Hyphen
-                else if ((Char is >= '0' and <= '9') || (Char is >= 'A' and <= 'Z') || (Char is >= 'a' and <= 'z') || Char is '-') {
-                }
-                // Invalid
-                else {
-                    throw new UnreachableException();
-                }
             }
 
-            return Tag[StartIndex..Index];
+            ReadOnlySpan<char> Identifier = Tag[StartIndex..Index];
+
+            // Move past dot
+            if (Index + 1 < Tag.Length) {
+                Index++;
+            }
+
+            return Identifier;
         }
 
         while (true) {
