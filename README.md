@@ -45,3 +45,9 @@ Comparison between [SemVerZero](https://github.com/Joy-less/SemVerZero), [adamre
 
 - The Major, Minor and Patch versions are typed as `long` (64-bit signed integer). So, the maximum value of each version is `9,223,372,036,854,775,807`.
 - Versions in the [ZeroVer](https://0ver.org) format are accepted.
+
+## Todo
+
+- Add SemVer ranges.
+- Upload to NuGet.
+- Try to add .NET Standard 2.0 support.
