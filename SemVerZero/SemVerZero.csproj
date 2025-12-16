@@ -27,13 +27,13 @@
     <PropertyGroup>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-        <Description>Zero-allocation result pattern for C#.</Description>
-        <Title>ResultZero</Title>
+        <Description>Zero-allocation semantic versioning for C#.</Description>
+        <Title>SemVerZero</Title>
         <Authors>Joyless</Authors>
-        <PackageProjectUrl>https://github.com/Joy-less/ResultZero</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/Joy-less/SemVerZero</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <RepositoryUrl>https://github.com/Joy-less/ResultZero</RepositoryUrl>
-        <PackageTags>results; value results; exceptions</PackageTags>
+        <RepositoryUrl>https://github.com/Joy-less/SemVerZero</RepositoryUrl>
+        <PackageTags>semver; semantic versioning; version; value semver</PackageTags>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
 
