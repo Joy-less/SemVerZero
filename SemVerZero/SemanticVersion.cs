@@ -7,14 +7,13 @@ namespace SemVerZero;
 
 public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersion>, IEquatable<SemanticVersion>, IComparisonOperators<SemanticVersion, SemanticVersion, bool>,
     IFormattable, ISpanFormattable, IUtf8SpanFormattable {
-    public long Major { get; } = 0;
-    public long Minor { get; } = 0;
-    public long Patch { get; } = 0;
-    public string? Prerelease { get; } = null;
-    public string? Build { get; } = null;
+    public long Major { get; }
+    public long Minor { get; }
+    public long Patch { get; }
+    public string? Prerelease { get; }
+    public string? Build { get; }
 
-    public SemanticVersion()
-        : this(0) {
+    public SemanticVersion() {
     }
     public SemanticVersion(long Major, string? Prerelease = null, string? Build = null)
         : this(Major, 0, Prerelease, Build) {
@@ -187,7 +186,7 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
                 }
                 // Invalid
                 else {
-                    throw new FormatException("Invalid pre-release character (expected [0-9A-Za-z-])");
+                    throw new FormatException("Invalid version character (expected [0-9A-Za-z-])");
                 }
             }
 
