@@ -5,8 +5,11 @@ using System.Text;
 
 namespace SemVerZero;
 
-public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersion>, IEquatable<SemanticVersion>, IComparisonOperators<SemanticVersion, SemanticVersion, bool>,
-    IFormattable, ISpanFormattable, IUtf8SpanFormattable {
+public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersion>, IEquatable<SemanticVersion>, IFormattable
+#if !NETSTANDARD
+    , IComparisonOperators<SemanticVersion, SemanticVersion, bool>, ISpanFormattable, IUtf8SpanFormattable
+#endif
+    {
     public long Major { get; } = 0;
     public long Minor { get; } = 0;
     public long Patch { get; } = 0;
@@ -45,7 +48,11 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
         );
     }
     public string ToString(SemanticVersionFormat Format) {
+#if NETSTANDARD
+        if (!Enum.IsDefined(typeof(SemanticVersionFormat), Format)) throw new InvalidEnumArgumentException(nameof(Format));
+#else
         if (!Enum.IsDefined(Format)) throw new InvalidEnumArgumentException(nameof(Format));
+#endif
 
         return ToStringCore(
             IncludeMinor: Format >= SemanticVersionFormat.MajorMinor || Minor != 0 || Patch != 0,
@@ -58,6 +65,7 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
         // Format and provider are ignored
         return ToString();
     }
+#if !NETSTANDARD
     public bool TryFormat(Span<char> Destination, out int CharsWritten) {
         return TryFormatCore(Destination, out CharsWritten,
             IncludeMinor: true,
@@ -102,6 +110,7 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
         // Format and provider are ignored
         return TryFormat(Utf8Destination, out BytesWritten);
     }
+#endif
     public override int GetHashCode() {
         unchecked {
             int Hash = 17;
@@ -191,7 +200,11 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
                 }
             }
 
+#if NETSTANDARD2_0
+            return long.Parse(Input[StartIndex..Index].ToString(), NumberStyles.None);
+#else
             return long.Parse(Input[StartIndex..Index], NumberStyles.None);
+#endif
         }
         static ReadOnlySpan<char> ParsePrerelease(ReadOnlySpan<char> Input, ref int Index) {
             int StartIndex = Index;
@@ -317,7 +330,11 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
                 }
             }
 
+#if NETSTANDARD2_0
+            return long.TryParse(Input[StartIndex..Index].ToString(), NumberStyles.None, null, out Result);
+#else
             return long.TryParse(Input[StartIndex..Index], NumberStyles.None, null, out Result);
+#endif
         }
         static bool TryParsePrerelease(ReadOnlySpan<char> Input, ref int Index, out ReadOnlySpan<char> Result) {
             int StartIndex = Index;
@@ -505,7 +522,11 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
                 return 1;
             }
 
+#if NETSTANDARD2_0
+            if (long.TryParse(IdentifierA.ToString(), NumberStyles.None, null, out long IntegerA) && long.TryParse(IdentifierB.ToString(), NumberStyles.None, null, out long IntegerB)) {
+#else
             if (long.TryParse(IdentifierA, NumberStyles.None, null, out long IntegerA) && long.TryParse(IdentifierB, NumberStyles.None, null, out long IntegerB)) {
+#endif
                 int IntegerABComparison = IntegerA.CompareTo(IntegerB);
                 if (IntegerABComparison != 0) {
                     return IntegerABComparison;
@@ -527,6 +548,7 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
             + (IncludePrelease ? ("-" + Prerelease) : "")
             + (IncludeBuild ? ("+" + Build) : "");
     }
+#if !NETSTANDARD
     private bool TryFormatCore(Span<char> Destination, out int CharsWritten, bool IncludeMinor, bool IncludePatch, bool IncludePrelease, bool IncludeBuild) {
         CharsWritten = 0;
 
@@ -693,6 +715,7 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
 
         return true;
     }
+#endif
 
     public static bool operator >(SemanticVersion Left, SemanticVersion Right) {
         return Left.CompareTo(Right) > 0;
