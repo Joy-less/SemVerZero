@@ -18,7 +18,7 @@ string? Prerelease = Version.Prerelease;
 string? Build = Version.Build;
 
 string String = Version.ToString();
-string MinimalString = Version.ToMinimalString();
+string MinimalString = Version.ToString(SemanticVersionFormat.Major);
 ```
 
 ## Benchmarks
@@ -36,3 +36,8 @@ Comparison between [SemVerZero](https://github.com/Joy-less/SemVerZero), [adamre
 | ToString_SemVerZero       |  95.20 ns | 0.170 ns | 0.151 ns | 0.0356 |     224 B |
 | ToString_adamreeve        | 390.26 ns | 1.067 ns | 0.946 ns | 0.1082 |     680 B |
 | ToString_WalkerCodeRanger | 416.89 ns | 3.960 ns | 3.705 ns | 0.1183 |     744 B |
+
+## Notes
+
+- The Major, Minor and Patch versions are typed as `long` (64-bit signed integer). So, the maximum value of each version is `9,223,372,036,854,775,807`.
+- Versions in the [ZeroVer](https://0ver.org) format are accepted.

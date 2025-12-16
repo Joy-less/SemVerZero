@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
@@ -44,10 +44,12 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
             IncludeBuild: Build is not null
         );
     }
-    public string ToMinimalString() {
+    public string ToString(SemanticVersionFormat Format) {
+        if (!Enum.IsDefined(Format)) throw new InvalidEnumArgumentException(nameof(Format));
+
         return ToStringCore(
-            IncludeMinor: Minor != 0 || Patch != 0,
-            IncludePatch: Patch != 0,
+            IncludeMinor: Format >= SemanticVersionFormat.MajorMinor || Minor != 0 || Patch != 0,
+            IncludePatch: Format >= SemanticVersionFormat.MajorMinorPatch || Patch != 0,
             IncludePrelease: Prerelease is not null,
             IncludeBuild: Build is not null
         );
@@ -64,10 +66,12 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
             IncludeBuild: Build is not null
         );
     }
-    public bool TryMinimalFormat(Span<char> Destination, out int CharsWritten) {
+    public bool TryFormat(Span<char> Destination, out int CharsWritten, SemanticVersionFormat Format) {
+        if (!Enum.IsDefined(Format)) throw new InvalidEnumArgumentException(nameof(Format));
+
         return TryFormatCore(Destination, out CharsWritten,
-            IncludeMinor: Minor != 0 || Patch != 0,
-            IncludePatch: Patch != 0,
+            IncludeMinor: Format >= SemanticVersionFormat.MajorMinor || Minor != 0 || Patch != 0,
+            IncludePatch: Format >= SemanticVersionFormat.MajorMinorPatch || Patch != 0,
             IncludePrelease: Prerelease is not null,
             IncludeBuild: Build is not null
         );
@@ -84,10 +88,12 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
             IncludeBuild: Build is not null
         );
     }
-    public bool TryMinimalFormat(Span<byte> Utf8Destination, out int BytesWritten) {
+    public bool TryFormat(Span<byte> Utf8Destination, out int BytesWritten, SemanticVersionFormat Format) {
+        if (!Enum.IsDefined(Format)) throw new InvalidEnumArgumentException(nameof(Format));
+
         return TryFormatCore(Utf8Destination, out BytesWritten,
-            IncludeMinor: Minor != 0 || Patch != 0,
-            IncludePatch: Patch != 0,
+            IncludeMinor: Format >= SemanticVersionFormat.MajorMinor || Minor != 0 || Patch != 0,
+            IncludePatch: Format >= SemanticVersionFormat.MajorMinorPatch || Patch != 0,
             IncludePrelease: Prerelease is not null,
             IncludeBuild: Build is not null
         );

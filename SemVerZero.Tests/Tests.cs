@@ -14,7 +14,7 @@ public class Tests {
         string? Build = Version.Build;
 
         string String = Version.ToString();
-        string MinimalString = Version.ToMinimalString();
+        string MinimalString = Version.ToString(SemanticVersionFormat.Major);
 
         Major.ShouldBe(1);
         Minor.ShouldBe(0);
@@ -30,19 +30,19 @@ public class Tests {
     public void ConstructorTest() {
         SemanticVersion Version1 = new(1, 2, 3, "a", "b");
         Version1.ToString().ShouldBe("1.2.3-a+b");
-        Version1.ToMinimalString().ShouldBe("1.2.3-a+b");
+        Version1.ToString(SemanticVersionFormat.Major).ShouldBe("1.2.3-a+b");
 
         SemanticVersion Version2 = new(1, 2, "a", "b");
         Version2.ToString().ShouldBe("1.2.0-a+b");
-        Version2.ToMinimalString().ShouldBe("1.2-a+b");
+        Version2.ToString(SemanticVersionFormat.Major).ShouldBe("1.2-a+b");
 
         SemanticVersion Version3 = new(0, 5);
         Version3.ToString().ShouldBe("0.5.0");
-        Version3.ToMinimalString().ShouldBe("0.5");
+        Version3.ToString(SemanticVersionFormat.Major).ShouldBe("0.5");
 
         SemanticVersion Version4 = new();
         Version4.ToString().ShouldBe("0.0.0");
-        Version4.ToMinimalString().ShouldBe("0");
+        Version4.ToString(SemanticVersionFormat.Major).ShouldBe("0");
     }
 
     [Fact]
