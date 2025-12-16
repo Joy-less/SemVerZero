@@ -5,26 +5,56 @@ using System.Text;
 
 namespace SemVerZero;
 
+/// <summary>
+/// A semantic version number in full compliance with the <see href="https://semver.org">Semantic Versioning 2.0.0</see> specification.
+/// </summary>
 public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersion>, IEquatable<SemanticVersion>, IFormattable
 #if !NETSTANDARD
     , IComparisonOperators<SemanticVersion, SemanticVersion, bool>, ISpanFormattable, IUtf8SpanFormattable
 #endif
     {
+    /// <summary>
+    /// The <c>MAJOR</c> version, to be incremented when you make incompatible API changes. This is the first integer.
+    /// </summary>
     public long Major { get; } = 0;
+    /// <summary>
+    /// The <c>MINOR</c> version, to be incremented when you add functionality in a backward compatible manner. This is the second integer.
+    /// </summary>
     public long Minor { get; } = 0;
+    /// <summary>
+    /// The <c>PATCH</c> version, to be incremented when you make backward compatible bug fixes. This is the third integer.
+    /// </summary>
     public long Patch { get; } = 0;
+    /// <summary>
+    /// The pre-release metadata, for example <c>alpha.1</c>. This is the text after the hyphen (<c>-</c>).
+    /// </summary>
     public string? Prerelease { get; } = null;
+    /// <summary>
+    /// The build metadata, for example <c>001</c>. This is the text after the plus (<c>+</c>).
+    /// </summary>
     public string? Build { get; } = null;
 
+    /// <summary>
+    /// Constructs a version for <c>0.0.0</c>.
+    /// </summary>
     public SemanticVersion()
         : this(0) {
     }
+    /// <summary>
+    /// Constructs a version for <c><paramref name="Major"/>.0.0-<paramref name="Prerelease"/>+<paramref name="Build"/></c>.
+    /// </summary>
     public SemanticVersion(long Major, string? Prerelease = null, string? Build = null)
         : this(Major, 0, Prerelease, Build) {
     }
+    /// <summary>
+    /// Constructs a version for <c><paramref name="Major"/>.<paramref name="Minor"/>.0-<paramref name="Prerelease"/>+<paramref name="Build"/></c>.
+    /// </summary>
     public SemanticVersion(long Major, long Minor, string? Prerelease = null, string? Build = null)
         : this(Major, Minor, 0, Prerelease, Build) {
     }
+    /// <summary>
+    /// Constructs a version for <c><paramref name="Major"/>.<paramref name="Minor"/>.<paramref name="Patch"/>-<paramref name="Prerelease"/>+<paramref name="Build"/></c>.
+    /// </summary>
     public SemanticVersion(long Major, long Minor, long Patch, string? Prerelease = null, string? Build = null) {
         if (Major < 0) throw new ArgumentOutOfRangeException(nameof(Major));
         if (Minor < 0) throw new ArgumentOutOfRangeException(nameof(Minor));
@@ -39,14 +69,15 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
         this.Build = Build;
     }
 
+    /// <summary>
+    /// Converts the version to a string in the <see cref="SemanticVersionFormat.MajorMinorPatch"/> format.
+    /// </summary>
     public override string ToString() {
-        return ToStringCore(
-            IncludeMinor: true,
-            IncludePatch: true,
-            IncludePrelease: Prerelease is not null,
-            IncludeBuild: Build is not null
-        );
+        return ToString(SemanticVersionFormat.MajorMinorPatch);
     }
+    /// <summary>
+    /// Converts the version to a string in the given format.
+    /// </summary>
     public string ToString(SemanticVersionFormat Format) {
 #if NETSTANDARD
         if (!Enum.IsDefined(typeof(SemanticVersionFormat), Format)) throw new InvalidEnumArgumentException(nameof(Format));
@@ -61,11 +92,15 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
             IncludeBuild: Build is not null
         );
     }
+    /// <inheritdoc cref="ToString()"/>
     string IFormattable.ToString(string? Format, IFormatProvider? Provider) {
         // Format and provider are ignored
         return ToString();
     }
 #if !NETSTANDARD
+    /// <summary>
+    /// Converts the version to a string in the <see cref="SemanticVersionFormat.MajorMinorPatch"/> format.
+    /// </summary>
     public bool TryFormat(Span<char> Destination, out int CharsWritten) {
         return TryFormatCore(Destination, out CharsWritten,
             IncludeMinor: true,
@@ -74,6 +109,9 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
             IncludeBuild: Build is not null
         );
     }
+    /// <summary>
+    /// Converts the version to a string in the given format.
+    /// </summary>
     public bool TryFormat(Span<char> Destination, out int CharsWritten, SemanticVersionFormat Format) {
         if (!Enum.IsDefined(Format)) throw new InvalidEnumArgumentException(nameof(Format));
 
@@ -84,10 +122,14 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
             IncludeBuild: Build is not null
         );
     }
+    /// <inheritdoc cref="TryFormat(Span{char}, out int)"/>
     bool ISpanFormattable.TryFormat(Span<char> Destination, out int CharsWritten, scoped ReadOnlySpan<char> Format, IFormatProvider? Provider) {
         // Format and provider are ignored
         return TryFormat(Destination, out CharsWritten);
     }
+    /// <summary>
+    /// Converts the version to a UTF-8 string in the <see cref="SemanticVersionFormat.MajorMinorPatch"/> format.
+    /// </summary>
     public bool TryFormat(Span<byte> Utf8Destination, out int BytesWritten) {
         return TryFormatCore(Utf8Destination, out BytesWritten,
             IncludeMinor: true,
@@ -96,6 +138,9 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
             IncludeBuild: Build is not null
         );
     }
+    /// <summary>
+    /// Converts the version to a UTF-8 string in the given format.
+    /// </summary>
     public bool TryFormat(Span<byte> Utf8Destination, out int BytesWritten, SemanticVersionFormat Format) {
         if (!Enum.IsDefined(Format)) throw new InvalidEnumArgumentException(nameof(Format));
 
@@ -106,11 +151,15 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
             IncludeBuild: Build is not null
         );
     }
+    /// <inheritdoc cref="TryFormat(Span{byte}, out int)"/>
     bool IUtf8SpanFormattable.TryFormat(Span<byte> Utf8Destination, out int BytesWritten, scoped ReadOnlySpan<char> Format, IFormatProvider? Provider) {
         // Format and provider are ignored
         return TryFormat(Utf8Destination, out BytesWritten);
     }
 #endif
+    /// <summary>
+    /// Creates a hash-code for the version, including <see cref="Major"/>, <see cref="Minor"/>, <see cref="Patch"/> and <see cref="Prerelease"/>.
+    /// </summary>
     public override int GetHashCode() {
         unchecked {
             int Hash = 17;
@@ -128,12 +177,27 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
             return Hash;
         }
     }
+    /// <summary>
+    /// Checks whether <paramref name="Other"/> is a <see cref="SemanticVersion"/> equal to this version.
+    /// </summary>
     public override bool Equals(object? Other) {
         return Other is SemanticVersion OtherSemanticVersion && Equals(OtherSemanticVersion);
     }
+    /// <summary>
+    /// Checks whether <paramref name="Other"/> is equal to this version.
+    /// </summary>
     public bool Equals(SemanticVersion Other) {
         return CompareTo(Other) == 0;
     }
+    /// <summary>
+    /// Compares this version to the other version, returning:
+    /// <list type="bullet">
+    ///   <item><c>1</c> if this version is greater than the other version</item>
+    ///   <item><c>0</c> if this version is equal to the other version</item>
+    ///   <item><c>-1</c> if this version is less than the other version</item>
+    ///   <item><c>1</c> if the other version is <see langword="null"/></item>
+    /// </list>
+    /// </summary>
     public int CompareTo(object? Other) {
         return Other switch {
             null => 1,
@@ -141,6 +205,14 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
             _ => throw new ArgumentException($"{nameof(Other)} is not {nameof(SemanticVersion)}", nameof(Other)),
         };
     }
+    /// <summary>
+    /// Compares this version to the other version, returning:
+    /// <list type="bullet">
+    ///   <item><c>1</c> if this version is greater than the other version</item>
+    ///   <item><c>0</c> if this version is equal to the other version</item>
+    ///   <item><c>-1</c> if this version is less than the other version</item>
+    /// </list>
+    /// </summary>
     public int CompareTo(SemanticVersion Other) {
         int MajorComparison = Major.CompareTo(Other.Major);
         if (MajorComparison != 0) {
@@ -172,6 +244,10 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
         return CompareTags(Prerelease, Other.Prerelease);
     }
 
+    /// <summary>
+    /// Converts the input string to a <see cref="SemanticVersion"/>, throwing on failure.
+    /// </summary>
+    /// <exception cref="FormatException"></exception>
     public static SemanticVersion Parse(scoped ReadOnlySpan<char> Input) {
         long Major = 0;
         long Minor = 0;
@@ -301,6 +377,9 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
 
         return new SemanticVersion(Major, Minor, Patch, Prerelease, Build);
     }
+    /// <summary>
+    /// Converts the input string to a <see cref="SemanticVersion"/>, returning <see langword="false"/> on failure.
+    /// </summary>
     public static bool TryParse(scoped ReadOnlySpan<char> Input, out SemanticVersion Result) {
         long Major = 0;
         long Minor = 0;
@@ -717,21 +796,39 @@ public readonly struct SemanticVersion : IComparable, IComparable<SemanticVersio
     }
 #endif
 
+    /// <summary>
+    /// Returns <see langword="true"/> if <paramref name="Left"/> is greater than <paramref name="Right"/>.
+    /// </summary>
     public static bool operator >(SemanticVersion Left, SemanticVersion Right) {
         return Left.CompareTo(Right) > 0;
     }
+    /// <summary>
+    /// Returns <see langword="true"/> if <paramref name="Left"/> is greater than or equal to <paramref name="Right"/>.
+    /// </summary>
     public static bool operator >=(SemanticVersion Left, SemanticVersion Right) {
         return Left.CompareTo(Right) >= 0;
     }
+    /// <summary>
+    /// Returns <see langword="true"/> if <paramref name="Left"/> is less than <paramref name="Right"/>.
+    /// </summary>
     public static bool operator <(SemanticVersion Left, SemanticVersion Right) {
         return Left.CompareTo(Right) < 0;
     }
+    /// <summary>
+    /// Returns <see langword="true"/> if <paramref name="Left"/> is less than or equal to <paramref name="Right"/>.
+    /// </summary>
     public static bool operator <=(SemanticVersion Left, SemanticVersion Right) {
         return Left.CompareTo(Right) <= 0;
     }
+    /// <summary>
+    /// Returns <see langword="true"/> if <paramref name="Left"/> is equal to <paramref name="Right"/>.
+    /// </summary>
     public static bool operator ==(SemanticVersion Left, SemanticVersion Right) {
         return Left.Equals(Right);
     }
+    /// <summary>
+    /// Returns <see langword="true"/> if <paramref name="Left"/> is not equal to <paramref name="Right"/>.
+    /// </summary>
     public static bool operator !=(SemanticVersion Left, SemanticVersion Right) {
         return !Left.Equals(Right);
     }
